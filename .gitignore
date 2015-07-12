@@ -1,0 +1,11 @@
+.metadata/
+target/
+.settings/
+.classpath
+.project
+/*.iml
+.idea/
+.directory
+iconv.dll
+.recommenders
+.metadata/

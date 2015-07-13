@@ -1,0 +1,19 @@
+package {{packageName}};
+
+import javax.inject.Inject;
+import lombok.Data;
+import org.springframework.stereotype.Component;
+
+{{#fields}}
+import {{type.packageName}}.{{type.name}};
+{{/fields}}
+
+@Data @Component
+public class {{name}} {
+
+{{#fields}}
+	@Inject
+	{{type.name}} {{fieldName}};
+{{/fields}}
+
+}

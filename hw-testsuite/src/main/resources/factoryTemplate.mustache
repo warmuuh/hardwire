@@ -1,0 +1,45 @@
+package root;
+
+import javax.inject.Inject;
+import lombok.Data;
+import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+
+
+
+public class ContainerFactory {
+	
+	Object[] classes = new Object[{{classes.size}}];
+	{{#classes}}
+	private {{packageName}}.{{name}} _{{name}};
+	protected {{packageName}}.{{name}} create{{name}}(){
+		return new {{packageName}}.{{name}}();
+	}
+	protected void wire{{name}}({{packageName}}.{{name}} v{{name}}){
+		{{#fields}}
+			v{{name}}.set{{setterName}}(get{{type.name}}());
+		{{/fields}}
+	}
+	public {{packageName}}.{{name}} get{{name}}(){
+		if (_{{name}} == null) {
+			_{{name}} = create{{name}}();
+			wire{{name}}(_{{name}});
+		}
+		return _{{name}};
+	}
+	{{/classes}}
+	
+
+
+
+
+	public void start(){
+		{{#classes}}
+		get{{name}}();
+		{{/classes}}
+		
+		
+	}	
+
+
+}

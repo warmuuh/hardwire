@@ -1,19 +1,34 @@
-package {{package}};
+package {{packageName}};
 
 import javax.inject.Inject;
 
 
 
-public class ContainerFactory {
+public abstract class Container {
+	
+	{{#references}}
+		private {{packageName}}.{{className}} {{name}};
+	{{/references}}
+	
+	
+	
+	
 	
 	{{#classes}}
+	
 	private {{packageName}}.{{name}} _{{name}};
+	
+	{{#abstr}}
+	protected abstract {{packageName}}.{{name}} create{{name}}();
+	{{/abstr}}
+	{{^abstr}}
 	protected {{packageName}}.{{name}} create{{name}}(){
 		return new {{packageName}}.{{name}}();
 	}
+	{{/abstr}}
 	protected void wire{{name}}({{packageName}}.{{name}} v{{name}}){
 		{{#fields}}
-			v{{name}}.set{{setterName}}(get{{type.name}}());
+			v{{name}}.set{{setterName}}({{#moduleRef}}{{.}}.{{/moduleRef}}get{{type.name}}());
 		{{/fields}}
 	}
 	public {{packageName}}.{{name}} get{{name}}(){
@@ -29,7 +44,14 @@ public class ContainerFactory {
 
 
 
-	public void start(){
+	public void start(
+		{{#references}}
+		{{packageName}}.{{className}} {{name}}{{^last}},{{/last}}{{/references}})
+	{
+		{{#references}}
+		this.{{name}} = {{name}};
+		{{/references}}
+		
 		{{#classes}}
 		get{{name}}();
 		{{/classes}}

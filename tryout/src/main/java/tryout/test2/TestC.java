@@ -1,8 +1,8 @@
-package tryout;
+package tryout.test2;
 
 import javax.inject.Singleton;
 
 @Singleton
-public class TestA {
+public class TestC {
 
 }

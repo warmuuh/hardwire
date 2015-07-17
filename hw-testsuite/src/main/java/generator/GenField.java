@@ -1,9 +1,5 @@
 package generator;
 
-import java.util.LinkedList;
-
-import java.util.List;
-
 import org.springframework.util.StringUtils;
 
 import lombok.Data;

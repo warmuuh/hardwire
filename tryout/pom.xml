@@ -15,7 +15,12 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.4</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 
@@ -27,6 +32,8 @@
 				<version>3.3</version>
 				<configuration>
 					<forceJavacCompilerUse>true</forceJavacCompilerUse>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,7 +1,5 @@
 package spring;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 

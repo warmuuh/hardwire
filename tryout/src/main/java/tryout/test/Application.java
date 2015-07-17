@@ -7,8 +7,8 @@ public class Application {
 	public static void main(String[] args) {
 		
 		
-		tryout.test2.Container c2 = new Container() {
-		};
+		tryout.test2.Container c2 = new Container() {};
+		c2.start();
 		
 		tryout.test.Container container = new tryout.test.Container(){
 

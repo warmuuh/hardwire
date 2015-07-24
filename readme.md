@@ -79,7 +79,8 @@ public class DbModule extends DbModuleBase{
 	}
 }
 ```
- ### External injection
+
+### External injection
  Sometimes, you want to inject e.g. java.sql.Datasource but define it in another module,
  so you have to declare the external declaration at that module:
  ```java

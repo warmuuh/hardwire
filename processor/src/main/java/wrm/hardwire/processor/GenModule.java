@@ -13,4 +13,12 @@ public class GenModule {
 
 	List<GenModuleRef> references = new LinkedList<GenModuleRef>();
 
+	
+	public boolean isAbstract(){
+		for (GenClass genClass : classes) {
+			if (genClass.isAbstr())
+				return true;
+		}
+		return false;
+	}
 }

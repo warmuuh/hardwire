@@ -2,7 +2,7 @@
 dependency injection without fluff
 
 ## overview
-the 90% usecase if dependency injection is to wire-up your application on startup.
+the 90% usecase of dependency injection is to wire-up your application on startup.
 Nearly every dependency is known on startup and the "dynamic" configuration 
 which needed to be done during startup (based on the environment) is also "forseen"
 on compiletime.
@@ -13,10 +13,12 @@ dependencies and creates a factory that wires everything up as it should be.
 
 ## why?
 Other DI frameworks rely on e.g. classpath-scanning or registering all dependencies 
-before wiring them up. Also they provide a lot more features like AOP or processing.
+before wiring them up using reflection. Also they provide a lot more features like AOP or processing.
 
-Hardwire tries to be the simplest possible solution without much magic. You can 
-have a look in the generated code to see how easy it actualy is.
+Hardwire tries to be the simplest possible solution without magic. You can 
+have a look in the generated code to see how easy it actualy is. It uses no reflections at all.
+
+**Faster DI is literally not possible**
 
 ## Getting Started
 `Hardwire` uses Modules which contain Singletons that are wired-up.

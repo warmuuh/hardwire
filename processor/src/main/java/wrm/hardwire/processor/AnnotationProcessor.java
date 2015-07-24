@@ -153,26 +153,22 @@ public class AnnotationProcessor extends AbstractProcessor {
 		
 		for (Element element : env.getElementsAnnotatedWith(Module.class)) {
 			
-			
-			String qualifiedName = ((QualifiedNameable)element).getQualifiedName().toString();
-			GenModule genModule = new GenModule(qualifiedName);
+			PackageElement pkg = elementUtils.getPackageOf(element);
+			String qualifiedName = ((QualifiedNameable)pkg).getQualifiedName().toString();
+			GenModule genModule = new GenModule(element.getSimpleName() + "Base", qualifiedName);
 			List<? extends AnnotationMirror> allAnnotationMirrors = elementUtils.getAllAnnotationMirrors(element);
 			
-			int i = 0; 
 			for (AnnotationMirror annotationMirror : allAnnotationMirrors) {
 				if (!annotationMirror.getAnnotationType().toString().equals(moduleType.toString()))
 					continue;
 				for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
-					if (!entry.getKey().toString().contains("imports()")) continue;
-					List values = (List) entry.getValue().getValue();
-					for(Object imp : values){
-						GenModuleRef moduleRef = new GenModuleRef();
-						String name= imp.toString().substring(1, imp.toString().length() - 1);
-						moduleRef.setPackageName(name);
-						moduleRef.setClassName("Container");
-						moduleRef.setName("ref" + i);
-						genModule.getReferences().add(moduleRef);
-						i++;
+					if (entry.getKey().toString().contains("imports()")){
+						List values = (List) entry.getValue().getValue();
+						addModuleReferences(genModule, values);
+					}
+					if (entry.getKey().toString().contains("external()")){
+						List values = (List) entry.getValue().getValue();
+						addModuleDynamic(genModule, values);
 					}
 				}
 					
@@ -185,6 +181,33 @@ public class AnnotationProcessor extends AbstractProcessor {
 		
 	}
 
+	private void addModuleReferences(GenModule genModule, List values) {
+		for(Object imp : values){
+			GenModuleRef moduleRef = new GenModuleRef();
+			String qualifiedName= imp.toString().substring(1, imp.toString().length() - 1);
+			int lastIdx = qualifiedName.lastIndexOf(".");
+			String className = qualifiedName.substring(lastIdx+1, qualifiedName.length());
+			String packageName = qualifiedName.substring(0, lastIdx);
+			moduleRef.setPackageName(packageName);
+			moduleRef.setClassName(className);
+			moduleRef.setName("ref" + className);
+			genModule.getReferences().add(moduleRef);
+		}
+	}
+
+	private void addModuleDynamic(GenModule genModule, List values) {
+		for(Object imp : values){
+			String qualifiedName = imp.toString().substring(1, imp.toString().length() - 1);
+			int lastIdx = qualifiedName.lastIndexOf(".");
+			String className = qualifiedName.substring(lastIdx+1, qualifiedName.length());
+			String packageName = qualifiedName.substring(0, lastIdx);
+			GenClass classRef = new GenClass(null);
+			classRef.setAbstr(true);
+			classRef.setPackageName(packageName);
+			classRef.setName(className);
+			genModule.getClasses().add(classRef);
+		}
+	}
 	private void analizeFields() {
 		List<GenClass> abstrClasses = new LinkedList<>();
 		for(GenClass gc : classes){
@@ -198,10 +221,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 					if (fieldEle.getAnnotation(Inject.class) == null)
 						continue;
 					
-					String qualifiedType = fieldEle.asType().toString();
+				
 					GenClass fGenClass = null;
 					for(GenClass ftype : classes){
-						if (ftype.getElement().asType().toString().equals(qualifiedType)){
+						boolean isAssignable = typeUtils.isAssignable(ftype.getElement().asType(), fieldEle.asType());
+						if (isAssignable){
 							fGenClass = ftype;
 							break;
 						}
@@ -244,7 +268,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 		  
 		  Template template = handlebars.compile("factoryTemplate");
 		  
-		  JavaFileObject fileObject = filer.createSourceFile(module.getPackageName() + ".Container");
+		  JavaFileObject fileObject = filer.createSourceFile(module.getPackageName() + "." + module.getClassName());
 		  OutputStream outputStream = fileObject.openOutputStream();
 		  try(Writer writer = new PrintWriter(outputStream)){
 			  template.apply(module, writer);

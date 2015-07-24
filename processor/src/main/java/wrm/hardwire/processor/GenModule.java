@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class GenModule {
 
+	final String className;
 	final String packageName;
 	List<GenClass> classes = new LinkedList<GenClass>();
 

@@ -4,7 +4,7 @@ import javax.annotation.Generated;
 
 
 @Generated("wrm.hardwire.processor.AnnotationProcessor")
-public {{#abstract}}abstract{{/abstract}} class Container {
+public {{#abstract}}abstract{{/abstract}} class {{className}} {
 	{{#references}}
 	private {{packageName}}.{{className}} {{name}};{{/references}}
 	{{#classes}}

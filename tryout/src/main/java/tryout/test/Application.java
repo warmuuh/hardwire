@@ -1,25 +1,16 @@
 package tryout.test;
 
-import tryout.test2.Container;
+import tryout.test2.Test2Module;
 
 public class Application {
 
 	public static void main(String[] args) {
+		Test2Module t2 = new Test2Module();
+		t2.start();
 		
+		TestModule t1 = new TestModule();
+		t1.start(t2);
 		
-		tryout.test2.Container c2 = new Container() {};
-		c2.start();
-		
-		tryout.test.Container container = new tryout.test.Container(){
-
-			@Override
-			protected DynamicInstance createDynamicInstance() {
-				return new DynamicInstanceImpl();
-			}
-			
-		};
-		container.start(c2);
-		
-		container.getTestB().doSomething();
+		t1.getTestB().doSomething();
 	}
 }

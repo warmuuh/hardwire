@@ -6,7 +6,7 @@ import javax.annotation.Generated;
 @Generated("wrm.hardwire.processor.AnnotationProcessor")
 public {{#abstract}}abstract{{/abstract}} class {{className}} {
 	{{#references}}
-	private {{packageName}}.{{className}} {{name}};{{/references}}
+	protected {{packageName}}.{{className}} {{name}};{{/references}}
 	{{#classes}}
 	private {{packageName}}.{{name}} _{{name}};	
 	{{#abstr}}

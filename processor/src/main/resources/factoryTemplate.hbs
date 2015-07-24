@@ -48,16 +48,26 @@ public abstract class Container {
 		{{#references}}
 		{{packageName}}.{{className}} {{name}}{{^last}},{{/last}}{{/references}})
 	{
+
 		{{#references}}
-		this.{{name}} = {{name}};
-		{{/references}}
+		this.{{name}} = {{name}};{{/references}}
 		
+		onStart();
+	
 		{{#classes}}
-		get{{name}}();
+		get{{name}}();{{/classes}}
+		
+		onPostConstruct();
+		{{#classes}}
+		{{#postConstructMethod}}
+		get{{../name}}().{{.}}();{{/postConstructMethod}}
 		{{/classes}}
-		
-		
+		onInitialized();
 	}	
 
+
+	protected void onStart(){};
+	protected void onPostConstruct(){};
+	protected void onInitialized(){};
 
 }

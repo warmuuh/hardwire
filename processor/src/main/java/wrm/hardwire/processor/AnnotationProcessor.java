@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.FilerException;
@@ -34,9 +35,8 @@ import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 
 import wrm.hardwire.Module;
 
@@ -72,6 +72,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 		
 		extractClasses(env);
 		analizeFields();
+		analizePostConstructMethods();
+		
 		sortClassesToRoots();
 
 		try {
@@ -88,6 +90,17 @@ public class AnnotationProcessor extends AbstractProcessor {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	private void analizePostConstructMethods() {
+		for(GenClass gc : classes){
+			Element element = gc.getElement();
+				for (Element methodElement : element.getEnclosedElements()) {
+					if (methodElement.getKind() != ElementKind.METHOD) continue;
+					if (methodElement.getAnnotation(PostConstruct.class) == null) continue;
+					gc.setPostConstructMethod(methodElement.getSimpleName().toString());
+				}
+		}
 	}
 
 	private void sortClassesToRoots() {
@@ -227,13 +240,14 @@ public class AnnotationProcessor extends AbstractProcessor {
 	}
 	
 	public void writeFactory(GenModule module) throws Exception {
-		  MustacheFactory mf = new DefaultMustacheFactory();
-		  Mustache mustache = mf.compile("factoryTemplate.mustache");
+		  Handlebars handlebars = new Handlebars();
+		  
+		  Template template = handlebars.compile("factoryTemplate");
 		  
 		  JavaFileObject fileObject = filer.createSourceFile(module.getPackageName() + ".Container");
 		  OutputStream outputStream = fileObject.openOutputStream();
 		  try(Writer writer = new PrintWriter(outputStream)){
-			  mustache.execute(writer, module);
+			  template.apply(module, writer);
 			  writer.flush();  
 		  };
 	}

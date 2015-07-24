@@ -13,6 +13,7 @@ public class GenClass {
 	final Element element;
 	String name;
 	String packageName;
+	String postConstructMethod;
 	boolean abstr;
 	List<GenField> fields = new LinkedList<GenField>();
 

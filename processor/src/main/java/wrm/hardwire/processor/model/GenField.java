@@ -1,4 +1,4 @@
-package wrm.hardwire.processor;
+package wrm.hardwire.processor.model;
 
 import lombok.Data;
 

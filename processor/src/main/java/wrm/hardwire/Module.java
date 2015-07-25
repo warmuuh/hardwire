@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Module {
 
-	String[] imports() default {};
+	Class<?>[] imports() default {};
 	
-	String[] external() default {};
+	Class<?>[] external() default {};
 	
 }

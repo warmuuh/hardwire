@@ -25,6 +25,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.QualifiedNameable;
 import javax.lang.model.element.TypeElement;
@@ -39,6 +40,10 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 
 import wrm.hardwire.Module;
+import wrm.hardwire.processor.model.GenClass;
+import wrm.hardwire.processor.model.GenField;
+import wrm.hardwire.processor.model.GenModule;
+import wrm.hardwire.processor.model.GenModuleRef;
 
 
 @SupportedAnnotationTypes({"javax.inject.Singleton", "wrm.hardwire.Module"})
@@ -53,13 +58,14 @@ public class AnnotationProcessor extends AbstractProcessor {
 	List<GenClass> classes = new LinkedList<>();
 	
 	List<GenModule> roots = new LinkedList<>();
+	private ModuleBaseWriter writer;
 	
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		typeUtils = processingEnv.getTypeUtils();
 		elementUtils = processingEnv.getElementUtils();
-		filer = processingEnv.getFiler();
+		writer = new ModuleBaseWriter(processingEnv.getFiler());
 		messager = processingEnv.getMessager();
 		warn(null, "initialization");
 	}
@@ -68,27 +74,18 @@ public class AnnotationProcessor extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> elements, RoundEnvironment env) {
 
 		
-		extractRoots(env);
+		extractModules(env);
 		
-		extractClasses(env);
+		extractSingletons(env);
 		analizeFields();
 		analizePostConstructMethods();
 		
-		sortClassesToRoots();
+		sortClassesToModules();
 
-		try {
-			if (elements.size() == 0 || env.processingOver()){
-				for (GenModule genModule : roots) {
-					try{
-						writeFactory(genModule);
-					} catch (FilerException e){
-						//
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (elements.size() == 0 || env.processingOver()){
+			writer.writeFactories(roots);
 		}
+		
 		return false;
 	}
 
@@ -103,7 +100,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 		}
 	}
 
-	private void sortClassesToRoots() {
+	private void sortClassesToModules() {
 		for (GenClass genClass : classes) {
 			for (GenModule module : roots) {
 				boolean isPackage = genClass.getPackageName().equals(module.getPackageName())
@@ -146,7 +143,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	}
 	
 	
-	private void extractRoots(RoundEnvironment env) {
+	private void extractModules(RoundEnvironment env) {
 		Element actionElement = processingEnv.getElementUtils().getTypeElement(
 				Module.class.getName() );
 		TypeMirror moduleType = actionElement.asType();
@@ -154,20 +151,21 @@ public class AnnotationProcessor extends AbstractProcessor {
 		for (Element element : env.getElementsAnnotatedWith(Module.class)) {
 			
 			PackageElement pkg = elementUtils.getPackageOf(element);
-			String qualifiedName = ((QualifiedNameable)pkg).getQualifiedName().toString();
-			GenModule genModule = new GenModule(element.getSimpleName() + "Base", qualifiedName);
+			String moduleName = element.getSimpleName() + "Base";
+			GenModule genModule = new GenModule(moduleName, pkg.getQualifiedName().toString());
 			List<? extends AnnotationMirror> allAnnotationMirrors = elementUtils.getAllAnnotationMirrors(element);
 			
 			for (AnnotationMirror annotationMirror : allAnnotationMirrors) {
 				if (!annotationMirror.getAnnotationType().toString().equals(moduleType.toString()))
 					continue;
 				for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
-					if (entry.getKey().toString().contains("imports()")){
-						List values = (List) entry.getValue().getValue();
+					String keyName = entry.getKey().getSimpleName().toString();
+					if (keyName.equals("imports")){
+						List<AnnotationValue> values = (List<AnnotationValue>) entry.getValue().getValue();
 						addModuleReferences(genModule, values);
 					}
-					if (entry.getKey().toString().contains("external()")){
-						List values = (List) entry.getValue().getValue();
+					if (keyName.equals("external")){
+						List<AnnotationValue> values = (List<AnnotationValue>) entry.getValue().getValue();
 						addModuleDynamic(genModule, values);
 					}
 				}
@@ -181,13 +179,12 @@ public class AnnotationProcessor extends AbstractProcessor {
 		
 	}
 
-	private void addModuleReferences(GenModule genModule, List values) {
-		for(Object imp : values){
+	private void addModuleReferences(GenModule genModule, List<AnnotationValue> values) {
+		for(AnnotationValue imp : values){
+			Element classElement = ((javax.lang.model.type.DeclaredType)imp.getValue()).asElement();
 			GenModuleRef moduleRef = new GenModuleRef();
-			String qualifiedName= imp.toString().substring(1, imp.toString().length() - 1);
-			int lastIdx = qualifiedName.lastIndexOf(".");
-			String className = qualifiedName.substring(lastIdx+1, qualifiedName.length());
-			String packageName = qualifiedName.substring(0, lastIdx);
+			String className = classElement.getSimpleName().toString();
+			String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
 			moduleRef.setPackageName(packageName);
 			moduleRef.setClassName(className);
 			moduleRef.setName("ref" + className);
@@ -195,12 +192,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 		}
 	}
 
-	private void addModuleDynamic(GenModule genModule, List values) {
-		for(Object imp : values){
-			String qualifiedName = imp.toString().substring(1, imp.toString().length() - 1);
-			int lastIdx = qualifiedName.lastIndexOf(".");
-			String className = qualifiedName.substring(lastIdx+1, qualifiedName.length());
-			String packageName = qualifiedName.substring(0, lastIdx);
+	private void addModuleDynamic(GenModule genModule, List<AnnotationValue> values) {
+		for(AnnotationValue imp : values){
+			Element classElement = ((javax.lang.model.type.DeclaredType)imp.getValue()).asElement();
+			String className = classElement.getSimpleName().toString();
+			String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
 			GenClass classRef = new GenClass(null);
 			classRef.setAbstr(true);
 			classRef.setPackageName(packageName);
@@ -211,7 +207,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	private void analizeFields() {
 		List<GenClass> abstrClasses = new LinkedList<>();
 		for(GenClass gc : classes){
-			gc.fields.clear(); //for now, just reset fields
+			gc.getFields().clear(); //for now, just reset fields
 			Element element = gc.getElement();
 			try{
 				for (Element fieldEle : element.getEnclosedElements()) {
@@ -252,7 +248,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 		classes.addAll(abstrClasses);
 	}
 
-	private void extractClasses(RoundEnvironment env) {
+	private void extractSingletons(RoundEnvironment env) {
 		for (Element element : env.getElementsAnnotatedWith(Singleton.class)) {
 			if (element.getKind() != ElementKind.CLASS) {
 				error(element, "Only classes are supported for  @Singleton");
@@ -263,19 +259,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 		}
 	}
 	
-	public void writeFactory(GenModule module) throws Exception {
-		  Handlebars handlebars = new Handlebars();
-		  
-		  Template template = handlebars.compile("factoryTemplate");
-		  
-		  JavaFileObject fileObject = filer.createSourceFile(module.getPackageName() + "." + module.getClassName());
-		  OutputStream outputStream = fileObject.openOutputStream();
-		  try(Writer writer = new PrintWriter(outputStream)){
-			  template.apply(module, writer);
-			  writer.flush();  
-		  };
-	}
-
+	
 	private GenClass readGenClass(Element element) {
 		GenClass gc = new GenClass(element);
 		gc.setName(element.getSimpleName().toString());

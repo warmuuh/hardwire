@@ -59,6 +59,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 	
 	List<GenModule> roots = new LinkedList<>();
 	private ModuleBaseWriter writer;
+	private ModuleVisitor moduleVisitor;
+	private SingletonVisitor singletonVisitor;
 	
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -67,18 +69,20 @@ public class AnnotationProcessor extends AbstractProcessor {
 		elementUtils = processingEnv.getElementUtils();
 		writer = new ModuleBaseWriter(processingEnv.getFiler());
 		messager = processingEnv.getMessager();
+		moduleVisitor = new ModuleVisitor(elementUtils);
+		singletonVisitor = new SingletonVisitor(elementUtils);
 		warn(null, "initialization");
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> elements, RoundEnvironment env) {
+		FieldVisitor fieldVisitor = new FieldVisitor(classes, typeUtils, elementUtils, messager);
 
 		
 		extractModules(env);
 		
 		extractSingletons(env);
-		analizeFields();
-		analizePostConstructMethods();
+		fieldVisitor.analizeFields();
 		
 		sortClassesToModules();
 
@@ -89,16 +93,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 		return false;
 	}
 
-	private void analizePostConstructMethods() {
-		for(GenClass gc : classes){
-			Element element = gc.getElement();
-				for (Element methodElement : element.getEnclosedElements()) {
-					if (methodElement.getKind() != ElementKind.METHOD) continue;
-					if (methodElement.getAnnotation(PostConstruct.class) == null) continue;
-					gc.setPostConstructMethod(methodElement.getSimpleName().toString());
-				}
-		}
-	}
 
 	private void sortClassesToModules() {
 		for (GenClass genClass : classes) {
@@ -127,7 +121,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 					}
 						
 				}
-			
 			}
 		}
 	}
@@ -143,129 +136,26 @@ public class AnnotationProcessor extends AbstractProcessor {
 	}
 	
 	
+
+
+	
+
 	private void extractModules(RoundEnvironment env) {
-		Element actionElement = processingEnv.getElementUtils().getTypeElement(
-				Module.class.getName() );
-		TypeMirror moduleType = actionElement.asType();
-		
 		for (Element element : env.getElementsAnnotatedWith(Module.class)) {
-			
-			PackageElement pkg = elementUtils.getPackageOf(element);
-			String moduleName = element.getSimpleName() + "Base";
-			GenModule genModule = new GenModule(moduleName, pkg.getQualifiedName().toString());
-			List<? extends AnnotationMirror> allAnnotationMirrors = elementUtils.getAllAnnotationMirrors(element);
-			
-			for (AnnotationMirror annotationMirror : allAnnotationMirrors) {
-				if (!annotationMirror.getAnnotationType().toString().equals(moduleType.toString()))
-					continue;
-				for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationMirror.getElementValues().entrySet()) {
-					String keyName = entry.getKey().getSimpleName().toString();
-					if (keyName.equals("imports")){
-						List<AnnotationValue> values = (List<AnnotationValue>) entry.getValue().getValue();
-						addModuleReferences(genModule, values);
-					}
-					if (keyName.equals("external")){
-						List<AnnotationValue> values = (List<AnnotationValue>) entry.getValue().getValue();
-						addModuleDynamic(genModule, values);
-					}
-				}
-					
-			}
-			if (genModule.getReferences().size() > 0)
-				genModule.getReferences().get(genModule.getReferences().size() -1).setLast(true);
+			GenModule genModule = moduleVisitor.visitModule(element);
 			roots.add(genModule);
 		}
-		
-		
 	}
-
-	private void addModuleReferences(GenModule genModule, List<AnnotationValue> values) {
-		for(AnnotationValue imp : values){
-			Element classElement = ((javax.lang.model.type.DeclaredType)imp.getValue()).asElement();
-			GenModuleRef moduleRef = new GenModuleRef();
-			String className = classElement.getSimpleName().toString();
-			String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
-			moduleRef.setPackageName(packageName);
-			moduleRef.setClassName(className);
-			moduleRef.setName("ref" + className);
-			genModule.getReferences().add(moduleRef);
-		}
-	}
-
-	private void addModuleDynamic(GenModule genModule, List<AnnotationValue> values) {
-		for(AnnotationValue imp : values){
-			Element classElement = ((javax.lang.model.type.DeclaredType)imp.getValue()).asElement();
-			String className = classElement.getSimpleName().toString();
-			String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
-			GenClass classRef = new GenClass(null);
-			classRef.setAbstr(true);
-			classRef.setPackageName(packageName);
-			classRef.setName(className);
-			genModule.getClasses().add(classRef);
-		}
-	}
-	private void analizeFields() {
-		List<GenClass> abstrClasses = new LinkedList<>();
-		for(GenClass gc : classes){
-			gc.getFields().clear(); //for now, just reset fields
-			Element element = gc.getElement();
-			try{
-				for (Element fieldEle : element.getEnclosedElements()) {
-					if (fieldEle.getKind() != ElementKind.FIELD)
-						continue;
-					
-					if (fieldEle.getAnnotation(Inject.class) == null)
-						continue;
-					
-				
-					GenClass fGenClass = null;
-					for(GenClass ftype : classes){
-						boolean isAssignable = typeUtils.isAssignable(ftype.getElement().asType(), fieldEle.asType());
-						if (isAssignable){
-							fGenClass = ftype;
-							break;
-						}
-					}
-					if (fGenClass == null){
-						//no matching type found for field, add it as "dynamic" type:
-						
-						Element fieldType = typeUtils.asElement(fieldEle.asType());
-						PackageElement packageOf = elementUtils.getPackageOf(fieldType);
-						GenClass fieldClass = new GenClass(fieldType);
-						fieldClass.setName(fieldType.getSimpleName().toString());
-						fieldClass.setPackageName(packageOf.getQualifiedName().toString());
-						fieldClass.setAbstr(true);
-					
-						abstrClasses.add(fieldClass);
-					}
-					GenField genfield = new GenField(fieldEle.getSimpleName().toString(), fGenClass);
-					gc.getFields().add(genfield);
-				}	
-			} catch (NullPointerException npe){
-				messager.printMessage(Kind.WARNING, "NullPointer catched");
-			}
-		}
-		classes.addAll(abstrClasses);
-	}
-
+	
 	private void extractSingletons(RoundEnvironment env) {
 		for (Element element : env.getElementsAnnotatedWith(Singleton.class)) {
-			if (element.getKind() != ElementKind.CLASS) {
-				error(element, "Only classes are supported for  @Singleton");
-				continue;
-			}
-			GenClass genClass = readGenClass(element);
+			GenClass genClass = singletonVisitor.readGenClass(element);
 			classes.add(genClass);
 		}
 	}
 	
 	
-	private GenClass readGenClass(Element element) {
-		GenClass gc = new GenClass(element);
-		gc.setName(element.getSimpleName().toString());
-		gc.setPackageName(elementUtils.getPackageOf(element).getQualifiedName().toString());
-		return gc;
-	}
+	
 
 	private void error(Element e, String msg, Object... args) {
 		messager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args), e);

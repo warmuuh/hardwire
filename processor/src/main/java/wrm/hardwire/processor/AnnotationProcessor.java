@@ -40,7 +40,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 		super.init(processingEnv);
 		writer = new ModuleBaseWriter(processingEnv.getFiler());
 		messager = processingEnv.getMessager();
-		root = new GenModelRoot(typeUtils);
+		root = new GenModelRoot(processingEnv.getTypeUtils());
 		moduleVisitor = new ModuleVisitor(processingEnv, root);
 		singletonVisitor = new SingletonVisitor(processingEnv, root);
 		warn(null, "initialization");
@@ -53,7 +53,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 		root.postProcess();
 
 		if (elements.size() == 0 || env.processingOver()){
-			writer.writeFactories(root.getRoots());
+			try{
+				writer.writeFactories(root.getRoots());
+			} catch (Throwable e){
+				e.printStackTrace();
+			}
 		}
 		
 		return false;

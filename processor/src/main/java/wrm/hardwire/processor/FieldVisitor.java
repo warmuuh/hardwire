@@ -34,7 +34,8 @@ public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 		gc.getFields().clear(); //for now, just reset fields
 		Element element = gc.getElement();
 		try{
-			element.accept(this, gc);
+			for(Element field : element.getEnclosedElements())
+				field.accept(this, gc);
 		} catch (NullPointerException npe){
 			messager.printMessage(Kind.WARNING, "NullPointer catched");
 		}
@@ -52,7 +53,7 @@ public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 
 	@Override
 	public GenField visitVariableAsField(VariableElement e, GenClass gc) {
-		if (e.getAnnotation(Inject.class) != null)
+		if (e.getAnnotation(Inject.class) == null)
 			return null;
 		
 		GenClass fGenClass = root.getAssignableClass(e);

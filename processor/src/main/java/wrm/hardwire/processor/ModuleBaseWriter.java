@@ -8,17 +8,22 @@ import java.util.List;
 import javax.annotation.processing.Filer;
 import javax.tools.JavaFileObject;
 
-import lombok.Data;
 import wrm.hardwire.processor.model.GenModule;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 
-@Data
 public class ModuleBaseWriter {
 
 	final Filer filer;
 	
+	
+	public ModuleBaseWriter(Filer filer) {
+		super();
+		this.filer = filer;
+	}
+
+
 	public void writeFactories(List<GenModule> module) {
 		for (GenModule genModule : module) {
 			try{
@@ -43,5 +48,8 @@ public class ModuleBaseWriter {
 		  };
 	}
 	
+	public Filer getFiler() {
+		return filer;
+	}
 	
 }

@@ -6,9 +6,6 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.util.Types;
 
-import lombok.Data;
-
-@Data
 public class GenModelRoot {
 
 	List<GenClass> classes = new LinkedList<>();
@@ -79,6 +76,22 @@ public class GenModelRoot {
 			}
 		}
 		return null;
+	}
+
+	public List<GenClass> getClasses() {
+		return classes;
+	}
+
+	public void setClasses(List<GenClass> classes) {
+		this.classes = classes;
+	}
+
+	public List<GenModule> getRoots() {
+		return roots;
+	}
+
+	public void setRoots(List<GenModule> roots) {
+		this.roots = roots;
 	}
 	
 	

@@ -60,12 +60,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 	}
 
 
-	
-	
-
-
-	
-
 	private void extractModules(RoundEnvironment env) {
 		for (Element element : env.getElementsAnnotatedWith(Module.class)) {
 			moduleVisitor.visitModule(element);
@@ -77,8 +71,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 			singletonVisitor.visitClass(element);
 		}
 	}
-	
-	
 	
 
 	private void error(Element e, String msg, Object... args) {

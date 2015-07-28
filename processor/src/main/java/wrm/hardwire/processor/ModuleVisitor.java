@@ -3,6 +3,7 @@ package wrm.hardwire.processor;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -14,16 +15,22 @@ import javax.lang.model.util.Elements;
 import lombok.RequiredArgsConstructor;
 import wrm.hardwire.Module;
 import wrm.hardwire.processor.model.GenClass;
+import wrm.hardwire.processor.model.GenModelRoot;
 import wrm.hardwire.processor.model.GenModule;
 import wrm.hardwire.processor.model.GenModuleRef;
 
-@RequiredArgsConstructor
 public class ModuleVisitor {
 
 
 	private final Elements elementUtils;
+	private GenModelRoot root;
 
-	public GenModule visitModule(Element element) {
+	public ModuleVisitor(ProcessingEnvironment processingEnv, GenModelRoot root) {
+		this.root = root;
+		elementUtils = processingEnv.getElementUtils();
+	}
+
+	public void visitModule(Element element) {
 		PackageElement pkg = elementUtils.getPackageOf(element);
 		String moduleName = element.getSimpleName() + "Base";
 		GenModule genModule = new GenModule(moduleName, pkg.getQualifiedName().toString());
@@ -51,7 +58,10 @@ public class ModuleVisitor {
 		}
 		if (genModule.getReferences().size() > 0)
 			genModule.getReferences().get(genModule.getReferences().size() -1).setLast(true);
-		return genModule;
+		
+		
+		root.getRoots().add(genModule);
+		
 	}
 
 	private void addModuleReferences(GenModule genModule, List<AnnotationValue> values) {

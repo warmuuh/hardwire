@@ -10,12 +10,16 @@ import lombok.Data;
 @Data
 public class GenClass {
 	
-	final Element element;
+	Element element;
 	String name;
 	String packageName;
 	String postConstructMethod;
 	boolean abstr;
 	List<GenField> fields = new LinkedList<GenField>();
+	public GenClass(Element element) {
+		super();
+		this.element = element;
+	}
 
 	
 	

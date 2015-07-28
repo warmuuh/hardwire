@@ -4,64 +4,52 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.util.AbstractElementVisitor8;
+import javax.lang.model.util.ElementKindVisitor8;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.SimpleElementVisitor8;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 
 import wrm.hardwire.processor.model.GenClass;
 import wrm.hardwire.processor.model.GenField;
+import wrm.hardwire.processor.model.GenModelRoot;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
-public class FieldVisitor {
+public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 
-	private List<GenClass> classes;
+	private GenModelRoot root;
 	private Types typeUtils;
 	private Elements elementUtils;
 	private Messager messager;
 	
-	public void analizeFields() {
+	
+	public FieldVisitor(GenModelRoot root, ProcessingEnvironment processingEnv) {
+		this.elementUtils = processingEnv.getElementUtils();
+		this.typeUtils = processingEnv.getTypeUtils();
+		this.messager = processingEnv.getMessager();
+		this.root = root;
+	}
+
+	public void analizeFields(GenClass gc) {
 		List<GenClass> abstrClasses = new LinkedList<>();
-		for(GenClass gc : classes){
-			gc.getFields().clear(); //for now, just reset fields
-			Element element = gc.getElement();
-			try{
-				for (Element fieldEle : element.getEnclosedElements()) {
-					if (fieldEle.getKind() != ElementKind.FIELD)
-						continue;
-					
-					if (fieldEle.getAnnotation(Inject.class) == null)
-						continue;
-					
-				
-					GenClass fGenClass = null;
-					for(GenClass ftype : classes){
-						boolean isAssignable = typeUtils.isAssignable(ftype.getElement().asType(), fieldEle.asType());
-						if (isAssignable){
-							fGenClass = ftype;
-							break;
-						}
-					}
-					if (fGenClass == null){
-						//no matching type found for field, add it as "dynamic" type:
-						GenClass fieldClass = createAbstractClass(fieldEle);
-						fieldClass.setAbstr(true);
-					
-						abstrClasses.add(fieldClass);
-					}
-					GenField genfield = new GenField(fieldEle.getSimpleName().toString(), fGenClass);
-					gc.getFields().add(genfield);
-				}	
-			} catch (NullPointerException npe){
-				messager.printMessage(Kind.WARNING, "NullPointer catched");
-			}
+		gc.getFields().clear(); //for now, just reset fields
+		Element element = gc.getElement();
+		try{
+			element.accept(this, gc);
+		} catch (NullPointerException npe){
+			messager.printMessage(Kind.WARNING, "NullPointer catched");
 		}
-		classes.addAll(abstrClasses);
 	}
 
 	private GenClass createAbstractClass(Element fieldEle) {
@@ -70,6 +58,25 @@ public class FieldVisitor {
 		GenClass fieldClass = new GenClass(fieldType);
 		fieldClass.setName(fieldType.getSimpleName().toString());
 		fieldClass.setPackageName(packageOf.getQualifiedName().toString());
+		fieldClass.setAbstr(true);
 		return fieldClass;
 	}
+
+	@Override
+	public GenField visitVariableAsField(VariableElement e, GenClass gc) {
+		if (e.getAnnotation(Inject.class) != null)
+			return null;
+		
+		GenClass fGenClass = root.getAssignableClass(e);
+		
+		if (fGenClass == null){
+			//no matching type found for field, add it as "dynamic" type:
+			GenClass fieldClass = createAbstractClass(e);
+			root.getClasses().add(fieldClass);
+		}
+		GenField genfield = new GenField(e.getSimpleName().toString(), fGenClass);
+		gc.getFields().add(genfield);
+		return genfield;
+	}
+	
 }

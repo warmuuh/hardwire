@@ -42,6 +42,7 @@ import com.github.jknack.handlebars.Template;
 import wrm.hardwire.Module;
 import wrm.hardwire.processor.model.GenClass;
 import wrm.hardwire.processor.model.GenField;
+import wrm.hardwire.processor.model.GenModelRoot;
 import wrm.hardwire.processor.model.GenModule;
 import wrm.hardwire.processor.model.GenModuleRef;
 
@@ -55,9 +56,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 	private Filer filer;
 	private Messager messager;
 
-	List<GenClass> classes = new LinkedList<>();
-	
-	List<GenModule> roots = new LinkedList<>();
+	GenModelRoot root;
 	private ModuleBaseWriter writer;
 	private ModuleVisitor moduleVisitor;
 	private SingletonVisitor singletonVisitor;
@@ -65,75 +64,28 @@ public class AnnotationProcessor extends AbstractProcessor {
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
-		typeUtils = processingEnv.getTypeUtils();
-		elementUtils = processingEnv.getElementUtils();
 		writer = new ModuleBaseWriter(processingEnv.getFiler());
 		messager = processingEnv.getMessager();
-		moduleVisitor = new ModuleVisitor(elementUtils);
-		singletonVisitor = new SingletonVisitor(elementUtils);
+		root = new GenModelRoot(typeUtils);
+		moduleVisitor = new ModuleVisitor(processingEnv, root);
+		singletonVisitor = new SingletonVisitor(processingEnv, root);
 		warn(null, "initialization");
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> elements, RoundEnvironment env) {
-		FieldVisitor fieldVisitor = new FieldVisitor(classes, typeUtils, elementUtils, messager);
-
-		
 		extractModules(env);
-		
 		extractSingletons(env);
-		fieldVisitor.analizeFields();
-		
-		sortClassesToModules();
+		root.postProcess();
 
 		if (elements.size() == 0 || env.processingOver()){
-			writer.writeFactories(roots);
+			writer.writeFactories(root.getRoots());
 		}
 		
 		return false;
 	}
 
 
-	private void sortClassesToModules() {
-		for (GenClass genClass : classes) {
-			for (GenModule module : roots) {
-				boolean isPackage = genClass.getPackageName().equals(module.getPackageName())
-						|| genClass.getPackageName().startsWith(module.getPackageName()+".");
-				if (isPackage && !module.getClasses().contains(genClass)){
-					module.getClasses().add(genClass);
-				}
-			}
-		}
-		
-		
-		
-		for (GenModule module : roots) {
-			for (GenClass genClass : module.getClasses()) {
-				for (GenField genfield : genClass.getFields()) {
-					GenModule rootForClass = getRootForClass(genfield.getType());
-					if (rootForClass != null && !rootForClass.equals(module)){
-						for (GenModuleRef moduleRef : module.getReferences()) {
-							boolean inPackage = genfield.getType().getPackageName().equals(moduleRef.getPackageName()) 
-									|| genfield.getType().getPackageName().startsWith(moduleRef.getPackageName()+".");
-							if(inPackage)
-								genfield.setModuleRef(moduleRef.getName());
-						}
-					}
-						
-				}
-			}
-		}
-	}
-
-	public GenModule getRootForClass(GenClass gc){
-		for (GenModule module : roots) {
-			for (GenClass genClass : module.getClasses()) {
-				if (genClass.equals(gc))
-					return module;
-			}
-		}
-		return null;
-	}
 	
 	
 
@@ -142,15 +94,13 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 	private void extractModules(RoundEnvironment env) {
 		for (Element element : env.getElementsAnnotatedWith(Module.class)) {
-			GenModule genModule = moduleVisitor.visitModule(element);
-			roots.add(genModule);
+			moduleVisitor.visitModule(element);
 		}
 	}
 	
 	private void extractSingletons(RoundEnvironment env) {
 		for (Element element : env.getElementsAnnotatedWith(Singleton.class)) {
-			GenClass genClass = singletonVisitor.readGenClass(element);
-			classes.add(genClass);
+			singletonVisitor.visitClass(element);
 		}
 	}
 	

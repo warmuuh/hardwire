@@ -8,7 +8,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
-import lombok.RequiredArgsConstructor;
 import wrm.hardwire.processor.model.GenClass;
 import wrm.hardwire.processor.model.GenModelRoot;
 

@@ -12,7 +12,6 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
-import lombok.RequiredArgsConstructor;
 import wrm.hardwire.Module;
 import wrm.hardwire.processor.model.GenClass;
 import wrm.hardwire.processor.model.GenModelRoot;

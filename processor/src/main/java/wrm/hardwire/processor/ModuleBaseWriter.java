@@ -6,11 +6,10 @@ import java.io.Writer;
 import java.util.List;
 
 import javax.annotation.processing.Filer;
-import javax.annotation.processing.FilerException;
 import javax.tools.JavaFileObject;
 
-import wrm.hardwire.processor.model.GenModule;
 import lombok.Data;
+import wrm.hardwire.processor.model.GenModule;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;

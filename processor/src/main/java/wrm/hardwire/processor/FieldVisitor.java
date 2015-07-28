@@ -1,30 +1,19 @@
 package wrm.hardwire.processor;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.inject.Inject;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.AbstractElementVisitor8;
 import javax.lang.model.util.ElementKindVisitor8;
 import javax.lang.model.util.Elements;
-import javax.lang.model.util.SimpleElementVisitor8;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 
 import wrm.hardwire.processor.model.GenClass;
 import wrm.hardwire.processor.model.GenField;
 import wrm.hardwire.processor.model.GenModelRoot;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 
@@ -42,7 +31,6 @@ public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 	}
 
 	public void analizeFields(GenClass gc) {
-		List<GenClass> abstrClasses = new LinkedList<>();
 		gc.getFields().clear(); //for now, just reset fields
 		Element element = gc.getElement();
 		try{

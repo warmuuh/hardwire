@@ -32,13 +32,23 @@ public {{#abstract}}abstract{{/abstract}} class {{className}} {
 	}
 	{{/classes}}
 	
-	public void start({{#references}}
-		{{packageName}}.{{className}} {{name}}{{^last}},{{/last}}
-		{{/references}})
-	{
+	
+	
+    public void reference({{#references}}
+        {{packageName}}.{{className}} {{name}}{{^last}},{{/last}}
+        {{/references}})
+    {
+        {{#references}}
+        this.{{name}} = {{name}};
+        {{/references}}
+    }
+	
+	public void start()	{
+		
 		{{#references}}
-		this.{{name}} = {{name}};
-		{{/references}}
+        assert this.{{name}} != null : "Reference to {{packageName}}.{{className}} is missing. Did you forget to call reference(...)?";
+        {{/references}}
+        
 		onStart();
 		{{#classes}}
 		get{{name}}();

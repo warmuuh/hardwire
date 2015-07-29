@@ -9,6 +9,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import wrm.hardwire.processor.model.GenClass;
+import wrm.hardwire.processor.model.GenMethodRef;
 import wrm.hardwire.processor.model.GenModelRoot;
 
 public class SingletonVisitor {
@@ -60,7 +61,8 @@ public class SingletonVisitor {
 		for (Element methodElement : element.getEnclosedElements()) {
 			if (methodElement.getKind() != ElementKind.METHOD) continue;
 			if (methodElement.getAnnotation(PostConstruct.class) == null) continue;
-			gc.setPostConstructMethod(methodElement.getSimpleName().toString());
+			String methodName = methodElement.getSimpleName().toString();
+			gc.setPostConstructMethod(new GenMethodRef(methodName, gc));
 		}
 	}
 

@@ -6,18 +6,22 @@ import javax.annotation.Generated;
 @Generated("wrm.hardwire.processor.AnnotationProcessor")
 public {{#abstract}}abstract{{/abstract}} class {{className}} {
 	{{#references}}
-	protected {{packageName}}.{{className}} {{name}};{{/references}}
+	protected {{packageName}}.{{className}} {{name}};
+	{{/references}}
 	{{#classes}}
 	private {{packageName}}.{{name}} _{{name}};	
 	{{#abstr}}
-	protected abstract {{packageName}}.{{name}} create{{name}}();{{/abstr}}
+	protected abstract {{packageName}}.{{name}} create{{name}}();
+	{{/abstr}}
 	{{^abstr}}
 	protected {{packageName}}.{{name}} create{{name}}(){
 		return new {{packageName}}.{{name}}();
-	}{{/abstr}}
+	}
+	{{/abstr}}
 	protected void wire{{name}}({{packageName}}.{{name}} v{{name}}){
 		{{#fields}}
-			v{{name}}.set{{setterName}}({{#moduleRef}}{{.}}.{{/moduleRef}}get{{type.name}}());{{/fields}}
+		v{{name}}.set{{setterName}}({{#moduleRef}}{{.}}.{{/moduleRef}}get{{type.name}}());
+		{{/fields}}
 	}
 	public {{packageName}}.{{name}} get{{name}}(){
 		if (_{{name}} == null) {
@@ -25,20 +29,25 @@ public {{#abstract}}abstract{{/abstract}} class {{className}} {
 			wire{{name}}(_{{name}});
 		}
 		return _{{name}};
-	}{{/classes}}
+	}
+	{{/classes}}
 	
 	public void start({{#references}}
-		{{packageName}}.{{className}} {{name}}{{^last}},{{/last}}{{/references}})
+		{{packageName}}.{{className}} {{name}}{{^last}},{{/last}}
+		{{/references}})
 	{
 		{{#references}}
-		this.{{name}} = {{name}};{{/references}}
+		this.{{name}} = {{name}};
+		{{/references}}
 		onStart();
 		{{#classes}}
-		get{{name}}();{{/classes}}
+		get{{name}}();
+		{{/classes}}
 		
 		onPostConstruct();
 		{{#classes}}{{#postConstructMethod}}
-		get{{../name}}().{{.}}();{{/postConstructMethod}}{{/classes}}
+		get{{type.name}}().{{name}}();
+		{{/postConstructMethod}}{{/classes}}
 	
 		onInitialized();
 	}

@@ -60,8 +60,8 @@ public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 		
 		if (fGenClass == null){
 			//no matching type found for field, add it as "dynamic" type:
-			GenClass fieldClass = createAbstractClass(e);
-			root.getClasses().add(fieldClass);
+			fGenClass = createAbstractClass(e);
+			root.getClasses().add(fGenClass);
 		}
 		GenField genfield = new GenField(e.getSimpleName().toString(), fGenClass);
 		gc.getFields().add(genfield);

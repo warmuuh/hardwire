@@ -6,8 +6,10 @@ import java.io.Writer;
 import java.util.List;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.Element;
 import javax.tools.JavaFileObject;
 
+import wrm.hardwire.processor.model.GenClass;
 import wrm.hardwire.processor.model.GenModule;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -38,8 +40,9 @@ public class ModuleBaseWriter {
 		// Template template = handlebars.compile("factoryTemplate");
 		MustacheFactory mf = new DefaultMustacheFactory();
 		Mustache template = mf.compile("factoryTemplate.hbs"); 
+		Element[] sources = getSourcesOf(module);
 		JavaFileObject fileObject = filer.createSourceFile(module
-				.getPackageName() + "." + module.getClassName());
+				.getPackageName() + "." + module.getClassName(), sources);
 		OutputStream outputStream = fileObject.openOutputStream();
 		try (Writer writer = new PrintWriter(outputStream)) {
 			//template.apply(module, writer);
@@ -47,6 +50,15 @@ public class ModuleBaseWriter {
 			writer.flush();
 		}
 		;
+	}
+
+	private Element[] getSourcesOf(GenModule module) {
+		Element[] result = new Element[module.getClasses().size()];
+		for (int i = 0; i < module.getClasses().size(); i++) {
+			GenClass genClass = module.getClasses().get(i);
+			result[i] = genClass.getElement();
+		}
+		return result;
 	}
 
 	public Filer getFiler() {

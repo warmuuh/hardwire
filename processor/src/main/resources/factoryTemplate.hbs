@@ -45,9 +45,9 @@ public {{#abstract}}abstract{{/abstract}} class {{className}} {
 		{{/classes}}
 		
 		onPostConstruct();
-		{{#classes}}{{#postConstructMethod}}
+		{{#classes}}{{#postConstructMethods}}
 		get{{type.name}}().{{name}}();
-		{{/postConstructMethod}}{{/classes}}
+		{{/postConstructMethods}}{{/classes}}
 	
 		onInitialized();
 	}

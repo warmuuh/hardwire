@@ -10,7 +10,7 @@ public class GenClass {
 	Element element;
 	String name;
 	String packageName;
-	GenMethodRef postConstructMethod;
+	List<GenMethodRef> postConstructMethods = new LinkedList<>();
 	
 	boolean abstr;
 	List<GenField> fields = new LinkedList<GenField>();
@@ -37,11 +37,11 @@ public class GenClass {
 		this.packageName = packageName;
 	}
 	
-	public GenMethodRef getPostConstructMethod() {
-		return postConstructMethod;
+	public List<GenMethodRef> getPostConstructMethods() {
+		return postConstructMethods;
 	}
-	public void setPostConstructMethod(GenMethodRef postConstructMethod) {
-		this.postConstructMethod = postConstructMethod;
+	public void addPostConstructMethod(GenMethodRef postConstructMethod) {
+		this.postConstructMethods.add(postConstructMethod);
 	}
 	public boolean isAbstr() {
 		return abstr;

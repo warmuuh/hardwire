@@ -62,7 +62,7 @@ public class SingletonVisitor {
 			if (methodElement.getKind() != ElementKind.METHOD) continue;
 			if (methodElement.getAnnotation(PostConstruct.class) == null) continue;
 			String methodName = methodElement.getSimpleName().toString();
-			gc.setPostConstructMethod(new GenMethodRef(methodName, gc));
+			gc.addPostConstructMethod(new GenMethodRef(methodName, gc));
 		}
 	}
 

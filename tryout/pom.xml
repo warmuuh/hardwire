@@ -10,8 +10,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>wrm.hardwire</groupId>
-			<artifactId>processor</artifactId>
+			<groupId>com.github.warmuuh</groupId>
+			<artifactId>hardwire</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>

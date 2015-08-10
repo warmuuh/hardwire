@@ -10,7 +10,7 @@ public class HardWireModule extends HardWireModuleBase {
 	
 	public static void main(String[] args) {
 		StopWatch watch = new StopWatch("hardwire");
-		watch.start();
+		watch.start(); 
 		
 		new HardWireModule().start();
 		

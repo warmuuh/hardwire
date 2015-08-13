@@ -19,7 +19,26 @@ Hardwire tries to be the simplest possible solution without magic. You can
 have a look in the generated code to see how easy it actualy is. It uses no reflections at all.
 
 **Faster DI is literally not possible**
-`
+
+## Installation
+add on-demand-repository (using https://jitpack.io/)
+```
+<repositories>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
+</repositories>
+```
+and the dependency
+```
+<dependency>
+	<groupId>com.github.warmuuh</groupId>
+	<artifactId>hardwire</artifactId>
+	<version>0.0.1</version>
+	<scope>provided</scope>
+</dependency>
+```
 
 ## Getting Started
 `Hardwire` uses Modules which contain Singletons that are wired-up.

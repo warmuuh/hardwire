@@ -55,6 +55,61 @@ public class GenClass {
 	public void setFields(List<GenField> fields) {
 		this.fields = fields;
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (abstr ? 1231 : 1237);
+//		result = prime * result + ((element == null) ? 0 : element.hashCode());
+		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
+		result = prime * result + ((postConstructMethods == null) ? 0 : postConstructMethods.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GenClass other = (GenClass) obj;
+		if (abstr != other.abstr)
+			return false;
+//		if (element == null) {
+//			if (other.element != null)
+//				return false;
+//		}  else if (!element.equals(other.element))
+//			return false;
+		if (fields == null) {
+			if (other.fields != null)
+				return false;
+		} else if (!fields.equals(other.fields))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (packageName == null) {
+			if (other.packageName != null)
+				return false;
+		} else if (!packageName.equals(other.packageName))
+			return false;
+		if (postConstructMethods == null) {
+			if (other.postConstructMethods != null)
+				return false;
+		} else if (!postConstructMethods.equals(other.postConstructMethods))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "GenClass [element=" + element + ", name=" + name + ", packageName=" + packageName
+				+ ", postConstructMethods=" + postConstructMethods + ", abstr=" + abstr + ", fields=" + fields + "]";
+	}
 
 	
 	

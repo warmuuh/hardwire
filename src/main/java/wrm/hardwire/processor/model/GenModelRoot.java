@@ -57,8 +57,7 @@ public class GenModelRoot {
 					GenModule rootForClass = getRootForClass(genfield.getType());
 					if (rootForClass != null && !rootForClass.equals(module)){
 						for (GenModuleRef moduleRef : module.getReferences()) {
-							boolean inPackage = genfield.getType().getPackageName().equals(moduleRef.getPackageName()) 
-									|| genfield.getType().getPackageName().startsWith(moduleRef.getPackageName()+".");
+							boolean inPackage = rootForClass.getPackageName().equals(moduleRef.getPackageName()) ;
 							if(inPackage)
 								genfield.setModuleRef(moduleRef.getName());
 						}

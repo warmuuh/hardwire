@@ -46,7 +46,7 @@ public class SimpleTest implements HardwireTest{
 	private List<JavaFileObject> createSourcesList(File[] files) throws Exception{
 		List<JavaFileObject> sources = new LinkedList<>();
 		for (File file : files) {
-			if (!file.getName().equals("result.java"))
+			if (!file.getName().equals("result.java") && file.getName().endsWith(".java"))
 				sources.add(JavaFileObjects.forResource(file.toURL()));
 		}
 		return sources;

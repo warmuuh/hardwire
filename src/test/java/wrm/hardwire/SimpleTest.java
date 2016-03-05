@@ -32,7 +32,7 @@ public class SimpleTest implements HardwireTest{
 		.processedWith(new AnnotationProcessor())
 		.compilesWithoutError()
 		.and()
-		.generatesSources(result);
+		.generatesSources(result, getAdditionalResult(files));
 	}
 
 	private JavaFileObject getResult(File[] files) throws Exception {
@@ -43,10 +43,19 @@ public class SimpleTest implements HardwireTest{
 		return null;
 	}
 
+	private JavaFileObject[] getAdditionalResult(File[] files) throws Exception {
+		List<JavaFileObject> addResults = new LinkedList<>();
+		for (File file : files) {
+			if (file.getName().startsWith("result") && !file.getName().equals("result.java"))
+				addResults.add(JavaFileObjects.forResource(file.toURL()));
+		}
+		return addResults.toArray(new JavaFileObject[]{});
+	}
+	
 	private List<JavaFileObject> createSourcesList(File[] files) throws Exception{
 		List<JavaFileObject> sources = new LinkedList<>();
 		for (File file : files) {
-			if (!file.getName().equals("result.java") && file.getName().endsWith(".java"))
+			if (!file.getName().startsWith("result") && file.getName().endsWith(".java"))
 				sources.add(JavaFileObjects.forResource(file.toURL()));
 		}
 		return sources;

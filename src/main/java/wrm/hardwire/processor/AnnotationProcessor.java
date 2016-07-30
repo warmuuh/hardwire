@@ -16,6 +16,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import javax.tools.Diagnostic.Kind;
 
 import wrm.hardwire.Module;
 import wrm.hardwire.processor.model.GenModelRoot;
@@ -48,18 +49,21 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> elements, RoundEnvironment env) {
-		extractModules(env);
-		extractSingletons(env);
-		root.postProcess();
+		try{
+			extractModules(env);
+			extractSingletons(env);
+			root.postProcess();
 
-		if (elements.size() == 0 || env.processingOver()){
-			try{
-				writer.writeFactories(root.getRoots());
-			} catch (Throwable e){
-				e.printStackTrace();
+			if (elements.size() == 0 || env.processingOver()){
+				try{
+					writer.writeFactories(root.getRoots());
+				} catch (Throwable e){
+					messager.printMessage(Kind.ERROR, e.getMessage());
+				}
 			}
+		} catch (Throwable e){
+			messager.printMessage(Kind.ERROR, e.getMessage());
 		}
-		
 		return false;
 	}
 

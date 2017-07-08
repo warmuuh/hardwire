@@ -36,7 +36,7 @@ public class GenModelRoot {
 	
 	public void postProcess(){
 		sortClassesToModules();
-		setModuleReferencesOfFields();
+		setModuleReferencesOfFieldsAndConstructors();
 	}
 	private void sortClassesToModules() {
 		for (GenClass genClass : classes) {
@@ -50,19 +50,26 @@ public class GenModelRoot {
 		}
 	}
 
-	private void setModuleReferencesOfFields() {
+	private void setModuleReferencesOfFieldsAndConstructors() {
 		for (GenModule module : roots) {
 			for (GenClass genClass : module.getClasses()) {
 				for (GenField genfield : genClass.getFields()) {
-					GenModule rootForClass = getRootForClass(genfield.getType());
-					if (rootForClass != null && !rootForClass.equals(module)){
-						for (GenModuleRef moduleRef : module.getReferences()) {
-							boolean inPackage = rootForClass.getPackageName().equals(moduleRef.getPackageName()) ;
-							if(inPackage)
-								genfield.setModuleRef(moduleRef.getName());
-						}
-					}
+					setModuleReferenceOfParam(module, genfield);
 				}
+				for (GenParam cParam : genClass.getConstructorArguments()) {
+					setModuleReferenceOfParam(module, cParam);
+				}
+			}
+		}
+	}
+
+	private void setModuleReferenceOfParam(GenModule module, GenParam genparam) {
+		GenModule rootForClass = getRootForClass(genparam.getType());
+		if (rootForClass != null && !rootForClass.equals(module)){
+			for (GenModuleRef moduleRef : module.getReferences()) {
+				boolean inPackage = rootForClass.getPackageName().equals(moduleRef.getPackageName()) ;
+				if(inPackage)
+					genparam.setModuleRef(moduleRef.getName());
 			}
 		}
 	}

@@ -19,6 +19,7 @@ public class SingletonVisitor {
 	private final Types typeUtils;
 	private final Messager messager;
 	private FieldVisitor fieldVisitor;
+	private ConstructorVisitor constructorVisitor;
 	
 	public SingletonVisitor(ProcessingEnvironment processingEnv, GenModelRoot root) {
 		super();
@@ -27,6 +28,7 @@ public class SingletonVisitor {
 		this.typeUtils = processingEnv.getTypeUtils();
 		this.messager = processingEnv.getMessager();
 		fieldVisitor = new FieldVisitor(root, processingEnv);
+		constructorVisitor = new ConstructorVisitor(root, processingEnv);
 	}
 	
 	
@@ -44,6 +46,7 @@ public class SingletonVisitor {
 		}
 		analizePostConstructMethods(gc);
 		fieldVisitor.analizeFields(gc);
+		constructorVisitor.analizeConstructor(gc);
 	}
 
 

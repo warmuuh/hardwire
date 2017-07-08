@@ -10,15 +10,20 @@ import tryout.test2.TestC;
 @Data
 public class TestB {
 
-	@Inject
+	
 	TestA testA;
 	
 	@Inject
 	DynamicInstance dynInst;
-	
-	
+
 	@Inject
 	TestC testC;
+	
+	@Inject
+	public TestB(TestA testA){
+		this.testA = testA;
+	}
+	
 	
 	public void doSomething(){
 		testA.doSomething();

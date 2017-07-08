@@ -20,10 +20,9 @@ public  class TestModuleBase {
 	}
 	private simple.TestB _TestB;	
 	protected simple.TestB createTestB(){
-		return new simple.TestB();
+		return new simple.TestB(getTestA());
 	}
 	protected void wireTestB(simple.TestB vTestB){
-		vTestB.setTestAInstance(getTestA());
 	}
 	public simple.TestB getTestB(){
 		if (_TestB == null) {

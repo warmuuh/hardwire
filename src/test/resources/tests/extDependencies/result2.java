@@ -8,7 +8,9 @@ public  class TestModule2Base {
 	protected simple.TestModule refTestModule;
 	private simple2.Test2 _Test2;	
 	protected simple2.Test2 createTest2(){
-		return new simple2.Test2();
+		return new simple2.Test2(
+			refTestModule.getTest1()
+		);
 	}
 	protected void wireTest2(simple2.Test2 vTest2){
 		vTest2.setTest1(refTestModule.getTest1());

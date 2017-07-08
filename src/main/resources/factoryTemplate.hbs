@@ -15,7 +15,11 @@ public {{#abstract}}abstract{{/abstract}} class {{className}} {
 	{{/abstr}}
 	{{^abstr}}
 	protected {{packageName}}.{{name}} create{{name}}(){
-		return new {{packageName}}.{{name}}();
+		return new {{packageName}}.{{name}}(
+		{{#decoratedConstructorArguments}}
+			{{#value}}{{#moduleRef}}{{.}}.{{/moduleRef}}get{{type.name}}(){{/value}}{{^last}},{{/last}}
+		{{/decoratedConstructorArguments}}
+		);
 	}
 	{{/abstr}}
 	protected void wire{{name}}({{packageName}}.{{name}} v{{name}}){
@@ -34,9 +38,7 @@ public {{#abstract}}abstract{{/abstract}} class {{className}} {
 	
 	
 	
-    public void reference({{#references}}
-        {{packageName}}.{{className}} {{name}}{{^last}},{{/last}}
-        {{/references}})
+    public void reference({{#references}}{{packageName}}.{{className}} {{name}}{{^last}},{{/last}}{{/references}})
     {
         {{#references}}
         this.{{name}} = {{name}};

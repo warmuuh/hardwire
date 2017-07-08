@@ -37,7 +37,7 @@ public class HardwireTestRunner extends Runner {
 			File testsDir = new File(getClass().getClassLoader().getResource("tests").toURI());
 			File[] testDirectories = testsDir.listFiles();
 			for (File file : testDirectories) {
-				if (file.isDirectory()){
+				if (file.isDirectory() && !file.getName().startsWith("X")){
 					Description desc = Description.createTestDescription(instance.getClass(), file.getName());
 					notifier.fireTestRunStarted(desc);
 					try {

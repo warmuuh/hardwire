@@ -1,9 +1,12 @@
 package wrm.hardwire.processor.model;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+
+import com.github.mustachejava.util.DecoratedCollection;
 
 public class GenClass {
 	
@@ -14,6 +17,9 @@ public class GenClass {
 	
 	boolean abstr;
 	List<GenField> fields = new LinkedList<GenField>();
+	List<GenParam> constructorArguments = new LinkedList<GenParam>();
+	
+	
 	public GenClass(Element element) {
 		super();
 		this.element = element;
@@ -55,12 +61,23 @@ public class GenClass {
 	public void setFields(List<GenField> fields) {
 		this.fields = fields;
 	}
+	public List<GenParam> getConstructorArguments() {
+		return constructorArguments;
+	}
+	public DecoratedCollection<GenParam> getDecoratedConstructorArguments(){
+		return new DecoratedCollection<>(constructorArguments);
+	}
+	
+	public void setConstructorArguments(List<GenParam> constructorArguments) {
+		this.constructorArguments = constructorArguments;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (abstr ? 1231 : 1237);
-//		result = prime * result + ((element == null) ? 0 : element.hashCode());
+		result = prime * result + ((constructorArguments == null) ? 0 : constructorArguments.hashCode());
+		result = prime * result + ((element == null) ? 0 : element.hashCode());
 		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
@@ -78,11 +95,16 @@ public class GenClass {
 		GenClass other = (GenClass) obj;
 		if (abstr != other.abstr)
 			return false;
-//		if (element == null) {
-//			if (other.element != null)
-//				return false;
-//		}  else if (!element.equals(other.element))
-//			return false;
+		if (constructorArguments == null) {
+			if (other.constructorArguments != null)
+				return false;
+		} else if (!constructorArguments.equals(other.constructorArguments))
+			return false;
+		if (element == null) {
+			if (other.element != null)
+				return false;
+		} else if (!element.equals(other.element))
+			return false;
 		if (fields == null) {
 			if (other.fields != null)
 				return false;
@@ -108,8 +130,12 @@ public class GenClass {
 	@Override
 	public String toString() {
 		return "GenClass [element=" + element + ", name=" + name + ", packageName=" + packageName
-				+ ", postConstructMethods=" + postConstructMethods + ", abstr=" + abstr + ", fields=" + fields + "]";
+				+ ", postConstructMethods=" + postConstructMethods + ", abstr=" + abstr + ", fields=" + fields
+				+ ", constructorArguments=" + constructorArguments + "]";
 	}
+	
+	
+	
 
 	
 	

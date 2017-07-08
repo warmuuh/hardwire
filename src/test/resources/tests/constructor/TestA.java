@@ -3,6 +3,6 @@ package simple;
 import javax.inject.Singleton;
 
 @Singleton
-public class Test {
+public class TestA {
 
 }

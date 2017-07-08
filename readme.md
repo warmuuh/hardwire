@@ -16,7 +16,7 @@ Other DI frameworks rely on e.g. classpath-scanning or registering all dependenc
 before wiring them up using reflection. Also they provide a lot more features like AOP or processing.
 
 Hardwire tries to be the simplest possible solution without magic. You can 
-have a look in the generated code to [see how easy it actualy is](/hardwire/src/test/resources/tests/simple/result.java). It uses no reflections at all.
+have a look in the generated code to [see how easy it actualy is](/src/test/resources/tests/simple/result.java). It uses no reflections at all.
 
 **Faster DI is literally not possible**
 
@@ -82,7 +82,7 @@ public class Application(){
 ```
 
 ## Features
-For examples on how to use these features, have a look at the [tests](/hardwire/src/test/resources/tests).
+For examples on how to use these features, have a look at the [tests](/src/test/resources/tests).
 
 ### Constructor or Fieldbased injection
 You can decide if you want to use constructor based or field based injection. Because Hardwire does not use reflection, you have to create setters for fieldbased injection.

@@ -35,7 +35,7 @@ and the dependency
 <dependency>
 	<groupId>com.github.warmuuh</groupId>
 	<artifactId>hardwire</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.3</version>
 	<scope>provided</scope>
 </dependency>
 ```

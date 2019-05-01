@@ -54,8 +54,8 @@ public class ConstructorVisitor extends ElementKindVisitor8<GenClass, GenClass> 
 
 	@Override
 	public GenClass visitExecutableAsConstructor(ExecutableElement e, GenClass gc) {
-		if (e.getAnnotation(Inject.class) == null)
-			return null;
+//		if (e.getAnnotation(Inject.class) == null)
+//			return null;
 		for (VariableElement param : e.getParameters()) {
 			GenClass fGenClass = root.getAssignableClass(param);
 			

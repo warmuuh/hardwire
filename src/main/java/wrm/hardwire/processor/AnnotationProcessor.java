@@ -1,5 +1,6 @@
 package wrm.hardwire.processor;
 
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -17,6 +18,8 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
+
+import org.mapstruct.ap.spi.AstModifyingAnnotationProcessor;
 
 import wrm.hardwire.Module;
 import wrm.hardwire.processor.model.GenModelRoot;
@@ -50,6 +53,20 @@ public class AnnotationProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> elements, RoundEnvironment env) {
 		try{
+			
+			//checking for lombok via SPI
+//			ServiceLoader<AstModifyingAnnotationProcessor> loader = ServiceLoader.load(AstModifyingAnnotationProcessor.class);
+//			loader.forEach(p -> {
+//			
+//				System.out.println("annotation processor: " + p);
+//				for (Element element : env.getElementsAnnotatedWith(Singleton.class))
+//					System.out.println(element + " typecomplete: " + p.isTypeComplete(element.asType()));
+//			});
+			
+			//direct check:
+//			AstModifyingAnnotationProcessor proc = (AstModifyingAnnotationProcessor) getClass().forName("lombok.launch.AnnotationProcessorHider$AstModificationNotifier").newInstance();
+//			System.out.println("### lombok invoked:" + proc.isTypeComplete(null));
+
 			extractModules(env);
 			extractSingletons(env);
 			root.postProcess();

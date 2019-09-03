@@ -41,13 +41,14 @@ public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 		}
 	}
 
-	private GenClass createAbstractClass(Element fieldEle) {
+	private GenClass createAbstractClass(Element fieldEle, PackageElement enclosingPackageName) {
 		Element fieldType = typeUtils.asElement(fieldEle.asType());
 		PackageElement packageOf = elementUtils.getPackageOf(fieldType);
 		GenClass fieldClass = new GenClass(fieldType);
 		fieldClass.setName(fieldType.getSimpleName().toString());
 		fieldClass.setPackageName(packageOf.getQualifiedName().toString());
 		fieldClass.setAbstr(true);
+		fieldClass.setEnclosingPackageName(enclosingPackageName.getQualifiedName().toString());
 		return fieldClass;
 	}
 
@@ -60,7 +61,7 @@ public class FieldVisitor extends ElementKindVisitor8<GenField, GenClass> {
 		
 		if (fGenClass == null){
 			//no matching type found for field, add it as "dynamic" type:
-			fGenClass = createAbstractClass(e);
+			fGenClass = createAbstractClass(e, elementUtils.getPackageOf(e.getEnclosingElement()));
 			root.getClasses().add(fGenClass);
 		}
 		GenField genfield = new GenField(e.getSimpleName().toString(), fGenClass);

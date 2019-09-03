@@ -11,6 +11,7 @@ public class GenModelRoot {
 	List<GenClass> classes = new LinkedList<>();
 	List<GenModule> roots = new LinkedList<>();
 	private Types typeUtils;
+
 	
 	public GenClass getAssignableClass(Element fieldEle) {
 		for(GenClass ftype : classes){
@@ -43,7 +44,10 @@ public class GenModelRoot {
 			for (GenModule module : roots) {
 				boolean isPackage = genClass.getPackageName().equals(module.getPackageName())
 						|| genClass.getPackageName().startsWith(module.getPackageName()+".");
-				if (isPackage && !module.getClasses().contains(genClass)){
+				boolean belongsToPackage = genClass.isAbstr() 
+							&& (genClass.getEnclosingPackageName().equals(module.getPackageName())
+										|| genClass.getEnclosingPackageName().startsWith(module.getPackageName()+"."));
+				if ((isPackage || belongsToPackage) && !module.getClasses().contains(genClass)){
 					module.getClasses().add(genClass);
 				}
 			}
@@ -99,6 +103,5 @@ public class GenModelRoot {
 	public void setRoots(List<GenModule> roots) {
 		this.roots = roots;
 	}
-	
 	
 }

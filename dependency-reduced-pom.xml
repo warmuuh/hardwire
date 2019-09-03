@@ -33,7 +33,7 @@
     <dependency>
       <groupId>com.google.testing.compile</groupId>
       <artifactId>compile-testing</artifactId>
-      <version>0.8</version>
+      <version>0.18</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -48,14 +48,15 @@
           <artifactId>guava</artifactId>
           <groupId>com.google.guava</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>auto-value</artifactId>
+          <groupId>com.google.auto.value</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>auto-common</artifactId>
+          <groupId>com.google.auto</groupId>
+        </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun</groupId>
-      <artifactId>tools</artifactId>
-      <version>1.5.0</version>
-      <scope>system</scope>
-      <systemPath>${java.home}/../lib/tools.jar</systemPath>
     </dependency>
   </dependencies>
 </project>

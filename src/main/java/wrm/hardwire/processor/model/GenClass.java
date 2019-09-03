@@ -16,6 +16,7 @@ public class GenClass {
 	List<GenMethodRef> postConstructMethods = new LinkedList<>();
 	
 	boolean abstr;
+	String enclosingPackageName;
 	List<GenField> fields = new LinkedList<GenField>();
 	List<GenParam> constructorArguments = new LinkedList<GenParam>();
 	
@@ -71,6 +72,14 @@ public class GenClass {
 	public void setConstructorArguments(List<GenParam> constructorArguments) {
 		this.constructorArguments = constructorArguments;
 	}
+	
+	public void setEnclosingPackageName(String enclosingPackageName) {
+		this.enclosingPackageName = enclosingPackageName;
+	}
+	public String getEnclosingPackageName() {
+		return enclosingPackageName;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -78,6 +87,7 @@ public class GenClass {
 		result = prime * result + (abstr ? 1231 : 1237);
 		result = prime * result + ((constructorArguments == null) ? 0 : constructorArguments.hashCode());
 		result = prime * result + ((element == null) ? 0 : element.hashCode());
+		result = prime * result + ((enclosingPackageName == null) ? 0 : enclosingPackageName.hashCode());
 		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
@@ -105,6 +115,11 @@ public class GenClass {
 				return false;
 		} else if (!element.equals(other.element))
 			return false;
+		if (enclosingPackageName == null) {
+			if (other.enclosingPackageName != null)
+				return false;
+		} else if (!enclosingPackageName.equals(other.enclosingPackageName))
+			return false;
 		if (fields == null) {
 			if (other.fields != null)
 				return false;
@@ -127,17 +142,12 @@ public class GenClass {
 			return false;
 		return true;
 	}
+	
 	@Override
 	public String toString() {
 		return "GenClass [element=" + element + ", name=" + name + ", packageName=" + packageName
 				+ ", postConstructMethods=" + postConstructMethods + ", abstr=" + abstr + ", fields=" + fields
 				+ ", constructorArguments=" + constructorArguments + "]";
 	}
-	
-	
-	
-
-	
-	
 	
 }

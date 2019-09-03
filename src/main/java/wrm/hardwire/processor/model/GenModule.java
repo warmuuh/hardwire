@@ -65,6 +65,22 @@ public class GenModule {
 				+ ", references=" + references + "]";
 	}
 
+	public String generatedAnnotation() {
+	    return isBeforeJava9() 
+	    		? "javax.annotation.Generated" 
+	    		: "javax.annotation.processing.Generated";
+	}
+	
+	private static boolean isBeforeJava9() {
+	    try {
+	      Class.forName("java.lang.Module");
+	      return false;
+	    } catch (ClassNotFoundException e) {
+	      return true;
+	    }
+	  }
+	
+	
 
 	@Override
 	public int hashCode() {

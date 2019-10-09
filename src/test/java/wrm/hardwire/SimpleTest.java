@@ -29,6 +29,7 @@ public class SimpleTest implements HardwireTest{
 		
 		assert_().about(javaSources())
 		.that(sources)
+		.withCompilerOptions("-AjdkOverwrite=8", "-AdisableIterativeCheck=true")
 		.processedWith(new AnnotationProcessor())
 		.compilesWithoutError()
 		.and()

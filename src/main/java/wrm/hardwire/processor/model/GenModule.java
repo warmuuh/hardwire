@@ -3,6 +3,8 @@ package wrm.hardwire.processor.model;
 import java.util.LinkedList;
 import java.util.List;
 
+import wrm.hardwire.processor.AnnotationProcessor;
+
 
 public class GenModule {
 
@@ -72,6 +74,10 @@ public class GenModule {
 	}
 	
 	private static boolean isBeforeJava9() {
+		if (AnnotationProcessor.getJdkOverwrite() != null) {
+			return AnnotationProcessor.getJdkOverwrite() < 9;
+		}
+		
 	    try {
 	      Class.forName("java.lang.Module");
 	      return false;

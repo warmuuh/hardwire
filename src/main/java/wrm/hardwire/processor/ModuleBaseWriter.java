@@ -42,7 +42,7 @@ public class ModuleBaseWriter {
 		Mustache template = mf.compile("factoryTemplate.hbs"); 
 		Element[] sources = getSourcesOf(module);
 		JavaFileObject fileObject = filer.createSourceFile(module
-				.getPackageName() + "." + module.getClassName(), sources);
+				.getPackageName() + "." + module.getClassName()); //we dont report the sources so that we keep the generated file on touching e.g. a @singleton component 
 		OutputStream outputStream = fileObject.openOutputStream();
 		try (Writer writer = new PrintWriter(outputStream)) {
 			//template.apply(module, writer);

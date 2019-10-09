@@ -3,6 +3,7 @@ package wrm.hardwire.processor;
 import javax.annotation.PostConstruct;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.util.Elements;
@@ -63,10 +64,20 @@ public class SingletonVisitor {
 		Element element = gc.getElement();
 		for (Element methodElement : element.getEnclosedElements()) {
 			if (methodElement.getKind() != ElementKind.METHOD) continue;
-			if (methodElement.getAnnotation(PostConstruct.class) == null) continue;
+			if (!hasPostConstructAnnotation(methodElement)) continue;
 			String methodName = methodElement.getSimpleName().toString();
 			gc.addPostConstructMethod(new GenMethodRef(methodName, gc));
 		}
+	}
+
+
+	private boolean hasPostConstructAnnotation(Element methodElement) {
+		//we cannot use PostConstruct directly, as it got removed in jdk9
+		for (AnnotationMirror annMirror : methodElement.getAnnotationMirrors()) {
+			if (annMirror.getAnnotationType().toString().equals("javax.annotation.PostConstruct"))
+				return true;
+		}
+		return false;
 	}
 
 
